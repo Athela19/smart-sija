@@ -39,10 +39,10 @@ export default function Navbar() {
   ];
 
   const dropdownLinks = [
-    { label: "Dokumentasi", href: "#dokumentasi" },
-    { label: "Struktur", href: "#structure" },
-    { label: "Kontak", href: "#contact" },
-    { label: "LMS", href: "/LMS/murid" },
+    { label: "Dokumentasi", href: "#Dokumentasi" },
+    { label: "Organigram", href: "#Organigram" },
+    { label: "Kontak", href: "#Kontak" },
+    { label: "LMS", href: "/murid" },
   ];
 
   return (

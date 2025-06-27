@@ -49,7 +49,7 @@ export default function DokumentasiPage() {
   if (dokumentasi.length === 0 || !currentItem) return null;
 
   return (
-    <section id="dokumentasi" className="py-24 bg-[var(--background)] px-6 md:px-16">
+    <section id="Dokumentasi" className="py-24 bg-[var(--background)] px-6 md:px-16">
       {/* Heading */}
       <motion.div
         initial={{ opacity: 0, y: 100 }}

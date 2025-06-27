@@ -6,6 +6,9 @@ import AboutPage from "./tentangKami";
 import StatsPage from "./statistik";
 import ProdukPage from "./produk";
 import DokumentasiPage from "./dokumentasi";
+import KutipanPage from "./kutipan";
+import OrganigramPage from "./organigram";
+import KontakPage from "./kontak";
  
 export default function LandingPage() {
    const [loading, setLoading] = useState(true);
@@ -26,6 +29,9 @@ export default function LandingPage() {
     <StatsPage />
     <ProdukPage />
     <DokumentasiPage />
+    <KutipanPage />
+    <OrganigramPage />
+    <KontakPage />
     </>
   );
 }

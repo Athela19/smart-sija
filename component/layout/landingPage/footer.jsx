@@ -82,12 +82,12 @@ export default function Footer() {
           <div className="flex flex-col gap-4 items-center text-center order-1 md:order-1">
             <ul className="flex flex-wrap justify-center gap-x-6 gap-y-3 max-w-md">
               {[
-                { label: "Beranda", href: "#home" },
-                { label: "Tentang Kami", href: "#about" },
-                { label: "Produk", href: "#product" },
-                { label: "Dokumentasi", href: "#docs" },
-                { label: "Struktur Organigram", href: "#structure" },
-                { label: "Kontak", href: "#contact" },
+                { label: "Beranda", href: "#Beranda" },
+                { label: "Tentang Kami", href: "#Tentang Kami" },
+                { label: "Produk", href: "#Produk" },
+                { label: "Dokumentasi", href: "#Dokumentasi" },
+                { label: "Organigram", href: "#Organigram" },
+                { label: "Kontak", href: "#Kontak" },
               ].map((item) => (
                 <li key={item.label} className="w-auto">
                   <a

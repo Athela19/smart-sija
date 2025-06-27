@@ -63,3 +63,13 @@ model Dokumentasi {
   foto6    String
   createdAt DateTime @default(now())
 }
+
+model Organigram {
+  id        Int      @id @default(autoincrement())
+  nama      String
+  jabatan   String
+  kutipan   String
+  foto      String
+  createdAt DateTime @default(now())
+}
+
