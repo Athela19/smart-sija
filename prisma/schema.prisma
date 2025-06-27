@@ -41,3 +41,13 @@ model Statistik {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Produk {
+  id         Int      @id @default(autoincrement())
+  nama       String
+  deskripsi  String
+  pembuat    String
+  foto       String   // URL atau path ke file foto
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}

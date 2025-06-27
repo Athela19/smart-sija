@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import HomePage from "./beranda";
 import AboutPage from "./tentangKami";
 import StatsPage from "./statistik";
+import ProdukPage from "./produk";
  
 export default function LandingPage() {
    const [loading, setLoading] = useState(true);
@@ -22,6 +23,7 @@ export default function LandingPage() {
     <HomePage />
     <AboutPage />
     <StatsPage />
+    <ProdukPage />
     </>
   );
 }

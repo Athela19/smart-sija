@@ -1,0 +1,118 @@
+import prisma from "@/lib/prisma";
+import { getAdminUser } from "@/lib/auth";
+import { NextResponse } from "next/server";
+import { parseForm } from "@/lib/parseform";
+import { uploadFile } from "@/lib/upload";
+import fs from "fs/promises";
+import path from "path";
+
+// Agar bisa handle multipart/form-data saat PUT
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
+// ====================
+// GET produk by ID
+// ====================
+export async function GET(req, { params }) {
+  const user = await getAdminUser(req);
+  if (!user) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const {id} = await params
+    const numberId = parseInt(id)
+    const produk = await prisma.produk.findUnique({
+      where: { id: numberId },
+    });
+
+    if (!produk) {
+      return NextResponse.json({ message: "Produk tidak ditemukan" }, { status: 404 });
+    }
+
+    return NextResponse.json(produk);
+  } catch (error) {
+    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+  }
+}
+
+// ====================
+// PUT update produk
+// ====================
+export async function PUT(req, { params }) {
+  const user = await getAdminUser(req);
+  if (!user) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+     const {id} = await params
+    const numberId = parseInt(id)
+    const produkLama = await prisma.produk.findUnique({ where: { id: numberId } });
+
+    if (!produkLama) {
+      return NextResponse.json({ message: "Produk tidak ditemukan" }, { status: 404 });
+    }
+
+    const { fields, files } = await parseForm(req);
+    const { nama, deskripsi, pembuat } = fields;
+
+    let fotoUrl = produkLama.foto;
+
+    if (files.foto) {
+      // Hapus file lama
+      if (produkLama.foto?.startsWith("/uploads")) {
+        const filePath = path.join(process.cwd(), "public", produkLama.foto);
+        await fs.unlink(filePath).catch(() => {});
+      }
+
+      // Upload file baru
+      fotoUrl = await uploadFile(files.foto);
+    }
+
+    const produkBaru = await prisma.produk.update({
+      where: { id: numberId },
+      data: { nama, deskripsi, pembuat, foto: fotoUrl },
+    });
+
+    return NextResponse.json({ message: "Produk berhasil diperbarui", data: produkBaru });
+  } catch (error) {
+    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+  }
+}
+
+// ====================
+// DELETE produk
+// ====================
+export async function DELETE(req, { params }) {
+  const user = await getAdminUser(req);
+  if (!user) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+     const {id} = await params
+    const numberId = parseInt(id)
+    const produk = await prisma.produk.findUnique({ where: { id:numberId } });
+
+    if (!produk) {
+      return NextResponse.json({ message: "Produk tidak ditemukan" }, { status: 404 });
+    }
+
+    // Hapus file dari folder jika ada
+    if (produk.foto?.startsWith("/uploads")) {
+      const filePath = path.join(process.cwd(), "public", produk.foto);
+      await fs.unlink(filePath).catch(() => {});
+    }
+
+    await prisma.produk.delete({ where: { id:numberId } });
+
+    return NextResponse.json({ message: "Produk berhasil dihapus" });
+  } catch (error) {
+    console.error("DELETE /produk/[id] error:", error);
+    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+  }
+}
