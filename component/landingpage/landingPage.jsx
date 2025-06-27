@@ -5,6 +5,7 @@ import HomePage from "./beranda";
 import AboutPage from "./tentangKami";
 import StatsPage from "./statistik";
 import ProdukPage from "./produk";
+import DokumentasiPage from "./dokumentasi";
  
 export default function LandingPage() {
    const [loading, setLoading] = useState(true);
@@ -24,6 +25,7 @@ export default function LandingPage() {
     <AboutPage />
     <StatsPage />
     <ProdukPage />
+    <DokumentasiPage />
     </>
   );
 }

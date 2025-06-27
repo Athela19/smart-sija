@@ -39,7 +39,7 @@ export default function Navbar() {
   ];
 
   const dropdownLinks = [
-    { label: "Dokumentasi", href: "#docs" },
+    { label: "Dokumentasi", href: "#dokumentasi" },
     { label: "Struktur", href: "#structure" },
     { label: "Kontak", href: "#contact" },
     { label: "LMS", href: "/LMS/murid" },

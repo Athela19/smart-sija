@@ -54,10 +54,6 @@ export async function POST(req) {
 // GET: Ambil Semua Produk
 // =======================
 export async function GET(req) {
-  const user = await getAdminUser(req);
-  if (!user) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  }
 
   try {
     const produk = await prisma.produk.findMany({

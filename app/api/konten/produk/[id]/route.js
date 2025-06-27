@@ -17,10 +17,6 @@ export const config = {
 // GET produk by ID
 // ====================
 export async function GET(req, { params }) {
-  const user = await getAdminUser(req);
-  if (!user) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  }
 
   try {
     const {id} = await params
