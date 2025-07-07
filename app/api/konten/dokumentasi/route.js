@@ -49,6 +49,12 @@ export async function POST(req) {
       },
     });
 
+    await prisma.riwayat.create({
+      data: {
+        userId: user.id,
+        aksi: "Menambahkan Dokumentasi",
+      },
+    });
     return NextResponse.json({ message: "Dokumentasi berhasil disimpan", data: dokumentasi }, { status: 201 });
   } catch (error) {
     console.error("POST Dokumentasi error:", error);

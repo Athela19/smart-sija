@@ -17,10 +17,18 @@ export const config = {
 // GET produk by ID
 // ====================
 export async function GET(req, { params }) {
+  const user = await getAdminUser(req);
+  if (!user) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
 
   try {
-    const {id} = await params
-    const numberId = parseInt(id)
+    const { id } = params;
+    const numberId = parseInt(id);
+    if (isNaN(numberId)) {
+      return NextResponse.json({ message: "ID tidak valid" }, { status: 400 });
+    }
+
     const produk = await prisma.produk.findUnique({
       where: { id: numberId },
     });
@@ -31,6 +39,7 @@ export async function GET(req, { params }) {
 
     return NextResponse.json(produk);
   } catch (error) {
+    console.error("GET produk by ID error:", error);
     return NextResponse.json({ message: "Internal server error" }, { status: 500 });
   }
 }
@@ -45,10 +54,13 @@ export async function PUT(req, { params }) {
   }
 
   try {
-     const {id} = await params
-    const numberId = parseInt(id)
-    const produkLama = await prisma.produk.findUnique({ where: { id: numberId } });
+    const { id } = params;
+    const numberId = parseInt(id);
+    if (isNaN(numberId)) {
+      return NextResponse.json({ message: "ID tidak valid" }, { status: 400 });
+    }
 
+    const produkLama = await prisma.produk.findUnique({ where: { id: numberId } });
     if (!produkLama) {
       return NextResponse.json({ message: "Produk tidak ditemukan" }, { status: 404 });
     }
@@ -59,7 +71,7 @@ export async function PUT(req, { params }) {
     let fotoUrl = produkLama.foto;
 
     if (files.foto) {
-      // Hapus file lama
+      // Hapus file lama jika path lokal
       if (produkLama.foto?.startsWith("/uploads")) {
         const filePath = path.join(process.cwd(), "public", produkLama.foto);
         await fs.unlink(filePath).catch(() => {});
@@ -74,8 +86,17 @@ export async function PUT(req, { params }) {
       data: { nama, deskripsi, pembuat, foto: fotoUrl },
     });
 
+    // Catat riwayat update produk
+    await prisma.riwayat.create({
+      data: {
+        userId: user.id,
+        aksi: `Memperbarui produk: ${produkBaru.nama}`,
+      },
+    });
+
     return NextResponse.json({ message: "Produk berhasil diperbarui", data: produkBaru });
   } catch (error) {
+    console.error("PUT produk error:", error);
     return NextResponse.json({ message: "Internal server error" }, { status: 500 });
   }
 }
@@ -90,25 +111,36 @@ export async function DELETE(req, { params }) {
   }
 
   try {
-     const {id} = await params
-    const numberId = parseInt(id)
-    const produk = await prisma.produk.findUnique({ where: { id:numberId } });
+    const { id } = params;
+    const numberId = parseInt(id);
+    if (isNaN(numberId)) {
+      return NextResponse.json({ message: "ID tidak valid" }, { status: 400 });
+    }
 
+    const produk = await prisma.produk.findUnique({ where: { id: numberId } });
     if (!produk) {
       return NextResponse.json({ message: "Produk tidak ditemukan" }, { status: 404 });
     }
 
-    // Hapus file dari folder jika ada
+    // Hapus file lokal jika ada
     if (produk.foto?.startsWith("/uploads")) {
       const filePath = path.join(process.cwd(), "public", produk.foto);
       await fs.unlink(filePath).catch(() => {});
     }
 
-    await prisma.produk.delete({ where: { id:numberId } });
+    await prisma.produk.delete({ where: { id: numberId } });
+
+    // Catat riwayat hapus produk
+    await prisma.riwayat.create({
+      data: {
+        userId: user.id,
+        aksi: `Menghapus produk: ${produk.nama}`,
+      },
+    });
 
     return NextResponse.json({ message: "Produk berhasil dihapus" });
   } catch (error) {
-    console.error("DELETE /produk/[id] error:", error);
+    console.error("DELETE produk error:", error);
     return NextResponse.json({ message: "Internal server error" }, { status: 500 });
   }
 }

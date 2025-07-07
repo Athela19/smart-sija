@@ -1,6 +1,6 @@
 import Statistik from "./statistik";
 // import User from "./user";
-// import History from "./history";
+import History from "./history";
 
 export default function Beranda() {
     return (
@@ -18,7 +18,7 @@ export default function Beranda() {
 
             {/* Kanan: 3/10 */}
             <div className="md:col-span-3">
-                {/* <History /> */}
+                <History />
             </div>
         </div>
     );

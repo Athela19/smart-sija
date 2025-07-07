@@ -38,6 +38,14 @@ export async function POST(req) {
     maxAge: 60 * 60 * 24 * 7, // 7 hari
   });
 
+  await prisma.riwayat.create({
+    data: {
+      userId: user.id,  // pakai user.id dari hasil query
+      aksi: "Telah login ke sistem",
+    },
+  });
+
+
   // Kirim response
   return new Response(
     JSON.stringify({

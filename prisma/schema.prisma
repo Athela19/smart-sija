@@ -30,6 +30,8 @@ model User {
   otpExpiresAt DateTime?
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
+
+  riwayat   Riwayat[]
 }
 
 model Statistik {
@@ -73,3 +75,12 @@ model Organigram {
   createdAt DateTime @default(now())
 }
 
+model Riwayat {
+  id        Int      @id @default(autoincrement())  // ID unik, auto increment
+  userId    Int                                      // Foreign key ke User
+  user      User     @relation(fields: [userId], references: [id])  // Relasi ke model User
+  aksi      String   // Deskripsi aksi, misalnya: "Login", "Edit Profil"
+  createdAt DateTime @default(now())                // Timestamp aksi
+
+  @@index([userId, createdAt])  // Index untuk query cepat berdasarkan user dan waktu
+}

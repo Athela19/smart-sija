@@ -99,7 +99,7 @@ export default function StatsPage() {
   };
 
   return (
-    <section className="flex flex-col bg-white border-2 border-white rounded-xl relative p-6 space-y-6">
+    <section className="flex flex-col bg-white border border-gray-200 rounded-xl relative p-6 space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-bold text-gray-800">Statistik</h2>

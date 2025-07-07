@@ -83,6 +83,13 @@ export async function PUT(req, { params }) {
       data: updatedData,
     });
 
+    await prisma.riwayat.create({
+      data: {
+        userId: user.id,
+        aksi: "Mengupdate Dokumentasi",
+      },
+    });
+    
     return NextResponse.json({ message: "Dokumentasi berhasil diperbarui", data: updated });
   } catch (error) {
     console.error("PUT Dokumentasi error:", error);

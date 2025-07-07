@@ -25,6 +25,14 @@ export async function POST(req) {
     data: { ruangan, guru, siswa, mapel },
   });
 
+  // Tambah riwayat
+  await prisma.riwayat.create({
+    data: {
+      userId: user.id,
+      aksi: `Membuat data statistik baru (id: ${created.id})`,
+    },
+  });
+
   return new Response(JSON.stringify(created), {
     status: 201,
     headers: { "Content-Type": "application/json" },
@@ -56,10 +64,16 @@ export async function PUT(req) {
     data: { ruangan, guru, siswa, mapel },
   });
 
+  // Tambah riwayat
+  await prisma.riwayat.create({
+    data: {
+      userId: user.id,
+      aksi: `Mengupdate data statistik`,
+    },
+  });
+
   return new Response(JSON.stringify(updated), {
     status: 200,
     headers: { "Content-Type": "application/json" },
   });
 }
-
-

@@ -22,7 +22,6 @@ export async function POST(req) {
 
   try {
     const { fields, files } = await parseForm(req);
-
     const { nama, deskripsi, pembuat } = fields;
     const foto = files.foto;
 
@@ -31,7 +30,7 @@ export async function POST(req) {
     }
 
     // Upload foto
-    const fotoUrl = await uploadFile(files.foto);
+    const fotoUrl = await uploadFile(foto);
 
     // Simpan ke database
     const produk = await prisma.produk.create({
@@ -40,6 +39,14 @@ export async function POST(req) {
         deskripsi,
         pembuat,
         foto: fotoUrl,
+      },
+    });
+
+    // Tambah riwayat user
+    await prisma.riwayat.create({
+      data: {
+        userId: user.id,
+        aksi: `Menambahkan produk: ${nama}`,
       },
     });
 
@@ -54,10 +61,22 @@ export async function POST(req) {
 // GET: Ambil Semua Produk
 // =======================
 export async function GET(req) {
+  const user = await getAdminUser(req);
+  if (!user) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
 
   try {
     const produk = await prisma.produk.findMany({
       orderBy: { createdAt: "desc" },
+    });
+
+    // Tambah riwayat user untuk melihat produk
+    await prisma.riwayat.create({
+      data: {
+        userId: user.id,
+        aksi: "Melihat daftar produk",
+      },
     });
 
     return NextResponse.json(produk, { status: 200 });

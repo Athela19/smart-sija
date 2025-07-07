@@ -26,6 +26,12 @@ export async function POST(req) {
       password: hashed,
     },
   });
+  await prisma.riwayat.create({
+    data: {
+      userId: user.id,  // pakai user.id dari hasil query
+      aksi: "Telah Mengubah Password",
+    },
+  });
 
   return NextResponse.json({ message: "Password berhasil direset" });
 }

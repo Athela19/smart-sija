@@ -11,16 +11,14 @@ export const config = {
   },
 };
 
-// ===================
 // GET: Ambil detail 1 guru
-// ===================
 export async function GET(_, { params }) {
-  const { id } =await params;
-    const numberId = parseInt(id);
+  const { id } = params;
+  const numberId = parseInt(id);
 
-    if (isNaN(numberId)) {
-      return NextResponse.json({ message: "ID tidak valid" }, { status: 400 });
-    }
+  if (isNaN(numberId)) {
+    return NextResponse.json({ message: "ID tidak valid" }, { status: 400 });
+  }
 
   try {
     const data = await prisma.organigram.findUnique({
@@ -38,22 +36,31 @@ export async function GET(_, { params }) {
   }
 }
 
-// ===================
 // PUT: Edit kata guru
-// ===================
 export async function PUT(req, { params }) {
-  const { id } =await params;
-    const numberId = parseInt(id);
+  const { id } = params;
+  const numberId = parseInt(id);
 
-    if (isNaN(numberId)) {
-      return NextResponse.json({ message: "ID tidak valid" }, { status: 400 });
-    }
+  if (isNaN(numberId)) {
+    return NextResponse.json({ message: "ID tidak valid" }, { status: 400 });
+  }
+
   const user = await getAdminUser(req);
   if (!user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
   try {
+    // Ambil dulu data lama untuk riwayat
+    const oldData = await prisma.organigram.findUnique({
+      where: { id: numberId },
+      select: { nama: true },
+    });
+
+    if (!oldData) {
+      return NextResponse.json({ message: "Data tidak ditemukan" }, { status: 404 });
+    }
+
     const { fields, files } = await parseForm(req);
     const { nama, jabatan, kutipan } = fields;
 
@@ -69,6 +76,13 @@ export async function PUT(req, { params }) {
       data: dataToUpdate,
     });
 
+    await prisma.riwayat.create({
+      data: {
+        userId: user.id,
+        aksi: `Mengupdate Organigram ${oldData.nama}`,
+      },
+    });
+
     return NextResponse.json({ message: "Berhasil diubah", data: updated }, { status: 200 });
   } catch (error) {
     console.error("PUT organigram error:", error);
@@ -76,24 +90,41 @@ export async function PUT(req, { params }) {
   }
 }
 
-// ===================
-// DELETE: Hapus kata guru
-// ===================
-export async function DELETE(req, { params }) {
-  const { id } =await params;
-    const numberId = parseInt(id);
 
-    if (isNaN(numberId)) {
-      return NextResponse.json({ message: "ID tidak valid" }, { status: 400 });
-    }
+// DELETE: Hapus kata guru
+export async function DELETE(req, { params }) {
+  const { id } = params;
+  const numberId = parseInt(id);
+
+  if (isNaN(numberId)) {
+    return NextResponse.json({ message: "ID tidak valid" }, { status: 400 });
+  }
+
   const user = await getAdminUser(req);
   if (!user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
   try {
+    // Ambil dulu data nama untuk riwayat
+    const data = await prisma.organigram.findUnique({
+      where: { id: numberId },
+      select: { nama: true },
+    });
+
+    if (!data) {
+      return NextResponse.json({ message: "Data tidak ditemukan" }, { status: 404 });
+    }
+
     await prisma.organigram.delete({
       where: { id: numberId },
+    });
+
+    await prisma.riwayat.create({
+      data: {
+        userId: user.id,
+        aksi: `Menghapus Organigram ${data.nama}`,
+      },
     });
 
     return NextResponse.json({ message: "Berhasil dihapus" }, { status: 200 });

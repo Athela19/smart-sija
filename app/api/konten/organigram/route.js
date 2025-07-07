@@ -36,6 +36,12 @@ export async function POST(req) {
         foto: fotoUrl,
       },
     });
+    await prisma.riwayat.create({
+      data: {
+        userId: user.id,  // pakai user.id dari hasil query
+        aksi: "Menambahkan Organigram",
+      },
+    });
 
     return NextResponse.json({ message: "Kutipan berhasil disimpan", data }, { status: 201 });
   } catch (error) {
