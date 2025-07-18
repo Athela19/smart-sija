@@ -78,7 +78,7 @@ model Organigram {
 model Riwayat {
   id        Int      @id @default(autoincrement())  // ID unik, auto increment
   userId    Int                                      // Foreign key ke User
-  user      User     @relation(fields: [userId], references: [id])  // Relasi ke model User
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)  // Relasi ke model User
   aksi      String   // Deskripsi aksi, misalnya: "Login", "Edit Profil"
   createdAt DateTime @default(now())                // Timestamp aksi
 

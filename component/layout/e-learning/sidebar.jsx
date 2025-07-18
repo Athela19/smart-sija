@@ -18,8 +18,8 @@ export default function SidebarLMS({ open, user }) {
 
   const menus = {
     ADMIN: [
-      { label: "Beranda", icon: LayoutDashboard, href: "/admin/home" },
-      { label: "Kelola User", icon: Users, href: "/admin/users" },
+      { label: "Beranda", icon: LayoutDashboard, href: "/admin/beranda" },
+      { label: "Kelola User", icon: Users, href: "/admin/pengguna" },
       { label: "Konten", icon: FolderOpen, href: "/admin/konten" },
       { label: "Pengaturan", icon: Settings, href: "/admin/settings" },
     ],

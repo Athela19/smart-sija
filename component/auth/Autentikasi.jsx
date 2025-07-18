@@ -84,9 +84,9 @@ export default function AuthPage() {
           const status = data.user?.status || "MURID";
 
           setTimeout(() => {
-            if (status === "ADMIN") router.push("/e-learning/admin");
-            else if (status === "GURU") router.push("/e-learning/guru");
-            else router.push("/e-learning/murid");
+            if (status === "ADMIN") router.push("/admin/beranda");
+            else if (status === "GURU") router.push("/guru/beranda");
+            else router.push("/murid/beranda");
           }, 1500);
         }
       } else {

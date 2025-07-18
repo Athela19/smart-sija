@@ -15,6 +15,7 @@ import {
   BookOpen,
   Pencil,
   X,
+  Loader2,
 } from "lucide-react";
 
 function AnimatedNumber({ value }) {
@@ -42,6 +43,22 @@ function AnimatedNumber({ value }) {
   );
 }
 
+// Skeleton loading component
+function StatSkeleton({ index }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: index * 0.1 }}
+      className="flex flex-col justify-between items-center bg-white p-4 rounded-lg shadow-sm min-h-[7.5rem]"
+    >
+      <div className="mb-2 p-2 rounded-full bg-gray-200 animate-pulse w-12 h-12"></div>
+      <div className="w-16 h-8 bg-gray-200 rounded animate-pulse"></div>
+      <div className="w-20 h-4 bg-gray-200 rounded animate-pulse"></div>
+    </motion.div>
+  );
+}
+
 const statKeys = [
   { key: "ruangan", label: "Ruangan", icon: <DoorOpen size={28} /> },
   { key: "guru", label: "Guru", icon: <GraduationCap size={28} /> },
@@ -54,9 +71,11 @@ export default function StatsPage() {
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ ruangan: 0, guru: 0, siswa: 0, mapel: 0 });
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
 
   useEffect(() => {
     async function fetchStats() {
+      setFetching(true);
       try {
         const res = await fetch("/api/konten/statistik");
         const json = await res.json();
@@ -65,6 +84,8 @@ export default function StatsPage() {
         setForm(data);
       } catch (error) {
         console.error("Gagal mengambil statistik:", error);
+      } finally {
+        setFetching(false);
       }
     }
     fetchStats();
@@ -104,8 +125,9 @@ export default function StatsPage() {
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-bold text-gray-800">Statistik</h2>
         <button
-          className="text-gray-500 hover:text-[var(--secondary)]"
+          className="text-gray-500 hover:text-[var(--secondary)] disabled:opacity-50"
           onClick={handleEdit}
+          disabled={fetching}
           aria-label="Edit Statistik"
         >
           <Pencil size={22} />
@@ -114,29 +136,37 @@ export default function StatsPage() {
 
       {/* Grid Statistik */}
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-        {statKeys.map((item, index) => (
-          <motion.div
-            key={item.key}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
-            viewport={{ once: true, margin: "-50px" }}
-            className="flex flex-col justify-between items-center bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 group min-h-[7.5rem]"
-          >
-            <div className="mb-2 p-2 rounded-full bg-[var(--tertiary)] text-[var(--secondary)] group-hover:bg-[var(--secondary)] group-hover:text-white">
-              {item.icon}
-            </div>
-            <div className="text-xl md:text-2xl font-bold text-gray-800">
-              <AnimatedNumber value={stats[item.key]} />
-              {item.approx && (
-                <span className="text-sm text-gray-500">&plusmn;</span>
-              )}
-            </div>
-            <p className="text-xs md:text-sm text-gray-600 font-medium text-center">
-              {item.label}
-            </p>
-          </motion.div>
-        ))}
+        {fetching ? (
+          // Show skeleton loading while fetching
+          statKeys.map((item, index) => (
+            <StatSkeleton key={item.key} index={index} />
+          ))
+        ) : (
+          // Show actual stats
+          statKeys.map((item, index) => (
+            <motion.div
+              key={item.key}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              viewport={{ once: true, margin: "-50px" }}
+              className="flex flex-col justify-between items-center bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 group min-h-[7.5rem]"
+            >
+              <div className="mb-2 p-2 rounded-full bg-[var(--tertiary)] text-[var(--secondary)] group-hover:bg-[var(--secondary)] group-hover:text-white">
+                {item.icon}
+              </div>
+              <div className="text-xl md:text-2xl font-bold text-gray-800">
+                <AnimatedNumber value={stats[item.key]} />
+                {item.approx && (
+                  <span className="text-sm text-gray-500">&plusmn;</span>
+                )}
+              </div>
+              <p className="text-xs md:text-sm text-gray-600 font-medium text-center">
+                {item.label}
+              </p>
+            </motion.div>
+          ))
+        )}
       </div>
 
       {/* Modal */}
@@ -144,8 +174,9 @@ export default function StatsPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity duration-300">
           <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 sm:p-8 animate-[fadeIn_0.3s_ease-out]">
             <button
-              className="absolute top-3 right-3 text-gray-400 hover:text-red-500 transition-colors"
+              className="absolute top-3 right-3 text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50"
               onClick={handleCancel}
+              disabled={loading}
               aria-label="Tutup"
             >
               <X size={22} />
@@ -174,7 +205,8 @@ export default function StatsPage() {
                     name={item.key}
                     value={form[item.key]}
                     onChange={handleChange}
-                    className="border border-gray-300 rounded-md px-3 py-1 w-24 text-center font-semibold text-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    disabled={loading}
+                    className="border border-gray-300 rounded-md px-3 py-1 w-24 text-center font-semibold text-lg focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                   <label className="w-32 font-medium text-gray-700">
                     {item.label}
@@ -184,7 +216,7 @@ export default function StatsPage() {
               <div className="flex justify-end gap-3 pt-4">
                 <button
                   type="button"
-                  className="px-4 py-2 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
+                  className="px-4 py-2 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 transition disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={handleCancel}
                   disabled={loading}
                 >
@@ -192,10 +224,17 @@ export default function StatsPage() {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-md bg-[var(--secondary)] text-white hover:bg-white hover:text-[var(--secondary)] border-2 border-[var(--secondary)] transition"
+                  className="px-4 py-2 rounded-md bg-[var(--secondary)] text-white hover:bg-white hover:text-[var(--secondary)] border-2 border-[var(--secondary)] transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                   disabled={loading}
                 >
-                  Simpan
+                  {loading ? (
+                    <>
+                      <Loader2 size={16} className="animate-spin" />
+                      Menyimpan...
+                    </>
+                  ) : (
+                    "Simpan"
+                  )}
                 </button>
               </div>
             </form>
